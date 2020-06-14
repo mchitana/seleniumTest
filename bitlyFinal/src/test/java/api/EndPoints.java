@@ -1,6 +1,9 @@
 package api;
 
 import io.restassured.RestAssured;
+import io.restassured.config.EncoderConfig;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import requests.CreateBitLinkRequest;
@@ -17,7 +20,7 @@ public class EndPoints {
         RestAssured.baseURI = baseUrl;
         request = RestAssured.given();
         request.urlEncodingEnabled(false);
-        request.header("Accept", "application/json");
+        request.accept( "application/json");
         request.log().all();
     }
 
@@ -34,15 +37,6 @@ public class EndPoints {
         String groups = RequestPaths.groups(groupId);
         response = request.get(groups);
         response.then().log().all().extract().response();
-//        return new RestResponse(Group.class, response);
-        return response;
-    }
-
-    public Response getGroupAllGroups() {
-        String groups = RequestPaths.allGroups();
-        Response response = request.get(groups);
-        response.then().log().all().extract().response();
-//        return new RestResponse(Group.class, response);
         return response;
     }
 
@@ -55,8 +49,18 @@ public class EndPoints {
     }
 
     public Response createBitLink(CreateBitLinkRequest createBitLinkRequest) {
-        request.contentType("application/json");
-        Response response = request.body(createBitLinkRequest).post(RequestPaths.bitlinks());
+//        EncoderConfig encoderConfig = EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false);
+//        request.contentType(ContentType.JSON).config(RestAssuredConfig.config().encoderConfig(encoderConfig));
+        request.contentType(ContentType.JSON);
+        response = request.body(createBitLinkRequest).post(RequestPaths.bitlinks());
+        response.then().log().all().extract().response();
+        return response;
+    }
+
+    public Response createBitLink(String createBitLinkRequestString) {
+        EncoderConfig encoderConfig = EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false);
+        request.contentType(ContentType.JSON).config(RestAssuredConfig.config().encoderConfig(encoderConfig));
+        response = request.body(createBitLinkRequestString).post(RequestPaths.bitlinks());
         response.then().log().all().extract().response();
         return response;
     }

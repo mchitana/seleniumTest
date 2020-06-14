@@ -17,12 +17,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 
 public class CreateBitLinkSteps {
-    public String validGroupId;
-    private RestResponse<Group> groupResponse;
-    private RestResponse<BitLinks> sortedBitLinksResponse;
-//    private RestResponse<Link> createBitlinkResponse;
     private static final String groupId = "Bk66h3Iprvs";
-    private static final String defaultDomain = "bit.ly";
+    private static String domain = "bit.ly";
     private String long_url;
     private EndPoints endPoints;
 
@@ -30,11 +26,11 @@ public class CreateBitLinkSteps {
         this.endPoints = endPoints;
     }
 
-    @Given("^user request links sorted by (clicks|unknown?) for the past (month|day|hour|minute)$")
-    public void sortedGroupsByClicks(String sortType, String duration) {
+    @Given("^user request links sorted by (clicks|unknown?) for the past (.*?) (month|day|hour|minute|year)(?:s)?$")
+    public void sortedGroupsByClicks(String sortType, String duration, String timeRange) {
         HashMap<String, String> queryParameters = new HashMap<>();
-        queryParameters.put("unit", duration);
-        queryParameters.put("units", "1");
+        queryParameters.put("unit", timeRange);
+        queryParameters.put("units", duration);
         endPoints.getSortedLinksByClicks(groupId, sortType, queryParameters);
     }
 
@@ -43,17 +39,40 @@ public class CreateBitLinkSteps {
         CreateBitLinkRequest createBitLinkRequest = CreateBitLinkRequest.builder()
                 .group_guid(groupId)
                 .title("New Title")
-                .domain(defaultDomain)
+                .domain(domain)
                 .long_url(long_url)
                 .build();
         endPoints.createBitLink(createBitLinkRequest);
     }
 
-    @Given("^a(?:n)? (empty|valid) long_url$")
+
+    @And("^user makes a request to create a bitlink with a malformed payload$")
+    public void malformedJson() {
+        String s = "{\n" +
+                "   \"domain\": \"bit.ly\",\n" +
+                "   \"title\": \"New Title\",,\n" +
+                "   \"group_guid\": \"Bk66h3Iprvs\",\n" +
+                "   \"tags\": null,\n" +
+                "   \"deeplinks\": null,\n" +
+                "   \"long_url\": \"https://www.example.com/1591942391908\"\n" +
+                "}";
+        endPoints.createBitLink(s);
+    }
+
+    @Given("^a(?:n)? (empty|valid|encoded) long_url$")
     public void long_url(String type) throws UnsupportedEncodingException {
-        String encodedUrl = "https://www.example.com/" + System.currentTimeMillis();
-        URLEncoder.encode(encodedUrl, "UTF-8");
-        long_url = type.equals("valid") ? encodedUrl : "";
+        String url = "https://www.example.com/" + System.currentTimeMillis();
+        switch (type) {
+            case "valid":
+                long_url = url;
+                break;
+            case "empty":
+                long_url = "";
+                break;
+            case "encoded":
+                long_url = URLEncoder.encode(url, "UTF-8");
+                break;
+        }
     }
 
     @Then("^the bitlink is created$")
@@ -70,13 +89,13 @@ public class CreateBitLinkSteps {
     public void bitLinkNotCreated() {
         RestResponse<Link> createBitlinkResponse = new RestResponse<>(Link.class, endPoints.getResponse());
         Assert.assertEquals(400, createBitlinkResponse.getStatusCode());
-        // createBitlinkResponse.
     }
 
     @Given("^an unknown domain name$")
     public void anUnknownDomainName() {
-
+        domain = "unknown";
     }
+
     @Then("^a list of sorted links are returned$")
     public void aListOfSortedLinksAreReturned() {
         RestResponse<BitLinks> sortedBitLinksResponse = new RestResponse(BitLinks.class, endPoints.getResponse());
@@ -91,10 +110,11 @@ public class CreateBitLinkSteps {
         Assert.assertTrue(sortedBitLinksResponse.getBody().getLinks().isEmpty());
     }
 
-    @Then("^the http response code is (\\d+) with an error message$")
-    public void theRsponseIsABadRequestWithErrorMessage(int httpStatusCode) {
+    @Then("^the http response code is (\\d+) with an error message (.*?)$")
+    public void theRsponseIsABadRequestWithErrorMessage(int httpStatusCode, String errorMessage) {
         RestResponse<ErrorsDetails> errorRestResponse = new RestResponse(ErrorsDetails.class, endPoints.getResponse());
         Assert.assertEquals(httpStatusCode, errorRestResponse.getStatusCode());
         Assert.assertNotNull(errorRestResponse.getBody());
+        Assert.assertEquals(errorMessage, errorRestResponse.getBody().getMessage());
     }
 }

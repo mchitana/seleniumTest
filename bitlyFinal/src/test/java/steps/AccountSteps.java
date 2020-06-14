@@ -12,9 +12,13 @@ public class AccountSteps {
         this.endPoints = endPoints;
     }
 
-    @Given("^I am an authorized bitly user$")
-    public void iAmAnAuthorizedBitlyUser() {
-        endPoints.authenticateUser(accessToken);
+    @Given("^I am an (authorized|unauthorized) bitly user$")
+    public void iAmAnAuthorizedBitlyUser(String  authourisedState) {
+        if("authorized".equals(authourisedState)){
+            endPoints.authenticateUser(accessToken);
+        }else{
+            endPoints.authenticateUser("wrongaAccessToken");
+        }
     }
 
 }

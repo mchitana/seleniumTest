@@ -1,4 +1,4 @@
-Feature: Create Bitlinks
+Feature: Get  Bitlinks By Group
 
   Background: User generates token for Authorisation
     Given I am an authorized bitly user
@@ -12,11 +12,8 @@ Feature: Create Bitlinks
     Then The user is forbidden to retrieve the groups info
 
   Scenario: get bitly groups calling the wrong url
-    And user requests to get groups using a invalid group_id
+    And user requests to get groups using a missing group_id
     Then The user is forbidden to retrieve the groups info
-
-
-
 
 
 

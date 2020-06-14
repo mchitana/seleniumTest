@@ -7,10 +7,6 @@ public class RequestPaths {
         return VERSION + "/groups/" + groupId;
     }
 
-    public static String allGroups() {
-        return VERSION + "/groups";
-    }
-
     public static String bitlinks() {
         return VERSION + "/bitlinks";
     }
