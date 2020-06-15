@@ -15,12 +15,13 @@ Feature: Create Bitlinks
     And  the http response code is 400 with an error message INVALID_ARG_LONG_URL
 
   Scenario: create a bitlink having the wrong domain name
+    Given a valid long_url
     And an unknown domain name
     When user makes a request to create a bitlink
     Then the bitlink is not created
     And the http response code is 400 with an error message INVALID_ARG_DOMAIN
 
-    #this scenario fails s the long_url is encoded which according to the documentation is a valid inpu
+    #this scenario fails s the long_url is encoded which according to the documentation is a valid input
   Scenario: create a bitlink sending an encoded long url
     Given an encoded long_url
     When user makes a request to create a bitlink

@@ -49,9 +49,8 @@ public class EndPoints {
     }
 
     public Response createBitLink(CreateBitLinkRequest createBitLinkRequest) {
-//        EncoderConfig encoderConfig = EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false);
-//        request.contentType(ContentType.JSON).config(RestAssuredConfig.config().encoderConfig(encoderConfig));
-        request.contentType(ContentType.JSON);
+        EncoderConfig encoderConfig = EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false);
+        request.contentType(ContentType.JSON).config(RestAssuredConfig.config().encoderConfig(encoderConfig));
         response = request.body(createBitLinkRequest).post(RequestPaths.bitlinks());
         response.then().log().all().extract().response();
         return response;
