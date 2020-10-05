@@ -18,7 +18,7 @@ public class RegistrationSteps extends TestBase {
     RegisterationPage registerationPage;
 
     public RegistrationSteps() {
-        RegisterationPage registerationPage = this.registerationPage = PageFactory.initElements(driver, RegisterationPage.class);
+        RegisterationPage loginPage = PageFactory.initElements(driver, RegisterationPage.class);
     }
 
 
